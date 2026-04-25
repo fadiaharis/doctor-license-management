@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/DoctorLicenseManagement.API/DoctorLicenseManagement.API.csproj" />
+  <Project Path="src/DoctorLicenseManagement.Application/DoctorLicenseManagement.Application.csproj" />
+  <Project Path="src/DoctorLicenseManagement.Domain/DoctorLicenseManagement.Domain.csproj" />
+  <Project Path="src/DoctorLicenseManagement.Infrastructure/DoctorLicenseManagement.Infrastructure.csproj" />
+</Solution>

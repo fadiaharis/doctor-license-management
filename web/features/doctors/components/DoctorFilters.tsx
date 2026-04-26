@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import type { DoctorFilters as DoctorFiltersType } from "../types/doctor";
 
 type Props = {
@@ -19,18 +19,28 @@ export function DoctorFilters({ filters, onChange }: Props) {
         />
       </div>
 
-      <select
-        value={filters.status}
-        onChange={(e) =>
-          onChange({ ...filters, status: e.target.value as DoctorFiltersType["status"] })
-        }
-        className="w-full rounded-lg bg-white shadow-sm px-4 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-48"
-      >
-        <option value="">All statuses</option>
-        <option value="Active">Active</option>
-        <option value="Expired">Expired</option>
-        <option value="Suspended">Suspended</option>
-      </select>
+      <div className="relative w-full sm:w-48">
+        <select
+          value={filters.status}
+          onChange={(e) =>
+            onChange({
+              ...filters,
+              status: e.target.value as DoctorFiltersType["status"],
+            })
+          }
+          className="w-full appearance-none rounded-lg border-slate-300 bg-white px-4 py-2 pr-10 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        >
+          <option value="">All statuses</option>
+          <option value="Active">Active</option>
+          <option value="Expired">Expired</option>
+          <option value="Suspended">Suspended</option>
+        </select>
+
+        <ChevronDown
+          size={18}
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+        />
+      </div>
     </div>
   );
 }

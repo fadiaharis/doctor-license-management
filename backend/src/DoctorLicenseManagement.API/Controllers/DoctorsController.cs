@@ -45,16 +45,18 @@ public class DoctorsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
-      [FromQuery] string? search,
-      [FromQuery] string? status,
-      CancellationToken cancellationToken)
+    [FromQuery] string? search,
+    [FromQuery] string? status,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10,
+    CancellationToken cancellationToken = default)
     {
         var doctors = await _mediator.Send(
-            new GetDoctorsQuery(search, status),
+            new GetDoctorsQuery(search, status, pageNumber, pageSize),
             cancellationToken
         );
 
-        var response = new ApiResponse<List<DoctorListItemDto>>(
+        var response = new ApiResponse<PaginatedResponse<DoctorListItemDto>>(
             true,
             "Doctors fetched successfully",
             doctors

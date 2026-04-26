@@ -1,5 +1,5 @@
 import { http } from "@/lib/http-client";
-import { ApiResponse } from "@/types/api-response";
+import { ApiResponse, PaginatedResponse } from "@/types/api-response";
 import {
   CreateDoctorPayload,
   Doctor,
@@ -13,13 +13,18 @@ function buildQuery(filters: DoctorFilters) {
   if (filters.search) params.set("search", filters.search);
   if (filters.status) params.set("status", filters.status);
 
+  params.set("pageNumber", String(filters.pageNumber));
+  params.set("pageSize", String(filters.pageSize));
+
   const query = params.toString();
   return query ? `?${query}` : "";
 }
 
 export const doctorService = {
   getAll: (filters: DoctorFilters) =>
-    http<ApiResponse<Doctor[]>>(`/Doctors${buildQuery(filters)}`),
+  http<ApiResponse<PaginatedResponse<Doctor>>>(
+    `/Doctors${buildQuery(filters)}`
+  ),
 
   getById: (id: number) =>
     http<ApiResponse<Doctor>>(`/Doctors/${id}`),

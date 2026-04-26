@@ -11,10 +11,12 @@ export type Doctor = {
   createdDate: string;
 };
 
-export type DoctorFilters = {
-  search?: string;
-  status?: DoctorStatus | "";
-};
+export interface DoctorFilters {
+  search: string;
+  status: DoctorStatus | "";
+  pageNumber: number;
+  pageSize: number;
+}
 
 export type CreateDoctorPayload = {
   fullName: string;

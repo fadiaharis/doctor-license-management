@@ -1,5 +1,5 @@
-using System.Data;
 using Dapper;
+using DoctorLicenseManagement.Application.Common;
 using DoctorLicenseManagement.Application.DTOs;
 using DoctorLicenseManagement.Application.Interfaces;
 using DoctorLicenseManagement.Domain.Entities;
@@ -7,6 +7,7 @@ using DoctorLicenseManagement.Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace DoctorLicenseManagement.Infrastructure.Repositories;
 
@@ -34,15 +35,37 @@ public class DoctorRepository : IDoctorRepository
             .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
     }
 
-    public async Task<List<DoctorListItemDto>> GetAllAsync(string? search, string? status, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<DoctorListItemDto>> GetAllAsync(
+     string? search,
+     string? status,
+     int pageNumber,
+     int pageSize)
     {
-        await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-        var result = await connection.QueryAsync<DoctorListItemDto>(
-            sql: "dbo.usp_Doctors_GetAll",
-            param: new { Search = search, Status = status },
-            commandType: CommandType.StoredProcedure);
+        using IDbConnection db = new SqlConnection(
+            _configuration.GetConnectionString("DefaultConnection")
+        );
 
-        return result.ToList();
+        var result = (await db.QueryAsync<DoctorListItemDto>(
+            "dbo.usp_Doctors_GetAll",
+            new
+            {
+                Search = string.IsNullOrWhiteSpace(search) ? null : search,
+                Status = string.IsNullOrWhiteSpace(status) ? null : status,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            },
+            commandType: CommandType.StoredProcedure
+        )).ToList();
+
+        var totalCount = result.FirstOrDefault()?.TotalCount ?? 0;
+
+        return new PaginatedResponse<DoctorListItemDto>
+        {
+            Items = result,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task UpdateAsync(Doctor doctor, CancellationToken cancellationToken)

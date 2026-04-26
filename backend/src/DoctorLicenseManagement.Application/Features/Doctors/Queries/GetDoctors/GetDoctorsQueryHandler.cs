@@ -1,10 +1,12 @@
+using DoctorLicenseManagement.Application.Common;
 using DoctorLicenseManagement.Application.DTOs;
 using DoctorLicenseManagement.Application.Interfaces;
 using MediatR;
 
 namespace DoctorLicenseManagement.Application.Features.Doctors.Queries.GetDoctors;
 
-public class GetDoctorsQueryHandler : IRequestHandler<GetDoctorsQuery, List<DoctorListItemDto>>
+public class GetDoctorsQueryHandler
+    : IRequestHandler<GetDoctorsQuery, PaginatedResponse<DoctorListItemDto>>
 {
     private readonly IDoctorRepository _doctorRepository;
 
@@ -13,8 +15,15 @@ public class GetDoctorsQueryHandler : IRequestHandler<GetDoctorsQuery, List<Doct
         _doctorRepository = doctorRepository;
     }
 
-    public Task<List<DoctorListItemDto>> Handle(GetDoctorsQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedResponse<DoctorListItemDto>> Handle(
+        GetDoctorsQuery request,
+        CancellationToken cancellationToken)
     {
-        return _doctorRepository.GetAllAsync(request.Search, request.Status, cancellationToken);
+        return await _doctorRepository.GetAllAsync(
+            request.Search,
+            request.Status,
+            request.PageNumber,
+            request.PageSize
+        );
     }
 }

@@ -24,6 +24,8 @@ export default function DoctorsPage() {
   const [filters, setFilters] = useState<DoctorFiltersType>({
     search: "",
     status: "",
+    pageNumber: 1,
+    pageSize: 5,
   });
 
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
@@ -36,7 +38,8 @@ export default function DoctorsPage() {
   const updateDoctor = useUpdateDoctor();
   const removeDoctor = useDeleteDoctor();
 
-  const doctors = data?.data ?? [];
+  const paginated = data?.data;
+  const doctors = paginated?.items ?? [];
 
   function handleAdd() {
     setSelectedDoctor(null);
@@ -100,7 +103,15 @@ export default function DoctorsPage() {
           </button>
         </div>
 
-        <DoctorFilters filters={filters} onChange={setFilters} />
+        <DoctorFilters
+          filters={filters}
+          onChange={(next) =>
+            setFilters({
+              ...next,
+              pageNumber: 1, // reset page
+            })
+          }
+        />
 
         {isLoading && (
           <div className="rounded-xl border bg-white p-8 text-slate-500">
@@ -123,16 +134,39 @@ export default function DoctorsPage() {
             />
 
             <div className="mt-4 flex items-center justify-between rounded-xl border bg-white px-6 py-4 text-sm text-slate-600">
-              <span>{doctors.length} results</span>
+              <span>
+                Showing page {paginated?.pageNumber} of {paginated?.totalPages} •{" "}
+                {paginated?.totalCount} results
+              </span>
 
               <div className="flex items-center gap-2">
-                <button className="rounded-md border px-3 py-1.5 text-slate-500">
+                <button
+                  disabled={filters.pageNumber === 1}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      pageNumber: prev.pageNumber - 1,
+                    }))
+                  }
+                  className="rounded-md border px-3 py-1.5 disabled:opacity-50"
+                >
                   Prev
                 </button>
-                <button className="rounded-md bg-indigo-600 px-3 py-1.5 text-white">
-                  1
-                </button>
-                <button className="rounded-md border px-3 py-1.5 text-slate-500">
+
+                <span className="rounded-md bg-indigo-600 px-3 py-1.5 text-white">
+                  {filters.pageNumber}
+                </span>
+
+                <button
+                  disabled={filters.pageNumber === paginated?.totalPages}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      pageNumber: prev.pageNumber + 1,
+                    }))
+                  }
+                  className="rounded-md border px-3 py-1.5 disabled:opacity-50"
+                >
                   Next
                 </button>
               </div>

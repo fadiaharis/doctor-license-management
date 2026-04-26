@@ -10,4 +10,5 @@ public class DoctorListItemDto
     public DateTime LicenseExpiryDate { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; }
+    public int TotalCount { get; set; }
 }

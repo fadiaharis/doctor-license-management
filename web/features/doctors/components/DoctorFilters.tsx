@@ -1,0 +1,36 @@
+import { Search } from "lucide-react";
+import type { DoctorFilters as DoctorFiltersType } from "../types/doctor";
+
+type Props = {
+  filters: DoctorFiltersType;
+  onChange: (filters: DoctorFiltersType) => void;
+};
+
+export function DoctorFilters({ filters, onChange }: Props) {
+  return (
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+      <div className="relative w-full sm:max-w-md">
+        <Search className="absolute left-3 top-3 text-slate-400" size={18} />
+        <input
+          value={filters.search}
+          onChange={(e) => onChange({ ...filters, search: e.target.value })}
+          placeholder="Search by name or license number"
+          className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+        />
+      </div>
+
+      <select
+        value={filters.status}
+        onChange={(e) =>
+          onChange({ ...filters, status: e.target.value as DoctorFiltersType["status"] })
+        }
+        className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-48"
+      >
+        <option value="">All statuses</option>
+        <option value="Active">Active</option>
+        <option value="Expired">Expired</option>
+        <option value="Suspended">Suspended</option>
+      </select>
+    </div>
+  );
+}

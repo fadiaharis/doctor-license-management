@@ -17,30 +17,3 @@ export function useDoctor(id: number) {
     enabled: Boolean(id),
   });
 }
-
-export function useCreateDoctor() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: CreateDoctorPayload) => doctorService.create(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: doctorKeys.all }),
-  });
-}
-
-export function useUpdateDoctor() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: UpdateDoctorPayload) => doctorService.update(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: doctorKeys.all }),
-  });
-}
-
-export function useDeleteDoctor() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: number) => doctorService.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: doctorKeys.all }),
-  });
-}

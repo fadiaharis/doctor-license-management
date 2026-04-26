@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import type {
   CreateDoctorPayload,
   Doctor,
-  DoctorStatus,
   UpdateDoctorPayload,
 } from "../types/doctor";
+import {
+  doctorSchema,
+  DoctorFormValues,
+} from "../validations/doctorSchema";
 
 type Props = {
   open: boolean;
@@ -16,7 +21,7 @@ type Props = {
   onSubmit: (payload: CreateDoctorPayload | UpdateDoctorPayload) => void;
 };
 
-const initialForm: CreateDoctorPayload = {
+const defaultValues: DoctorFormValues = {
   fullName: "",
   email: "",
   specialization: "",
@@ -32,11 +37,21 @@ export function DoctorFormModal({
   onClose,
   onSubmit,
 }: Props) {
-  const [form, setForm] = useState<CreateDoctorPayload>(initialForm);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<DoctorFormValues>({
+    resolver: zodResolver(doctorSchema),
+    defaultValues,
+  });
 
   useEffect(() => {
+    if (!open) return;
+
     if (doctor) {
-      setForm({
+      reset({
         fullName: doctor.fullName,
         email: doctor.email,
         specialization: doctor.specialization,
@@ -45,33 +60,22 @@ export function DoctorFormModal({
         status: doctor.status,
       });
     } else {
-      setForm(initialForm);
+      reset(defaultValues);
     }
-  }, [doctor, open]);
+  }, [doctor, open, reset]);
 
   if (!open) return null;
 
-  function handleChange(
-    field: keyof CreateDoctorPayload,
-    value: string
-  ) {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
+  function submitForm(values: DoctorFormValues) {
     if (doctor) {
       onSubmit({
         id: doctor.id,
-        ...form,
+        ...values,
       });
-    } else {
-      onSubmit(form);
+      return;
     }
+
+    onSubmit(values);
   }
 
   return (
@@ -88,61 +92,64 @@ export function DoctorFormModal({
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-4">
+        <form onSubmit={handleSubmit(submitForm)} className="grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input
-              label="Full Name"
-              value={form.fullName}
-              onChange={(value) => handleChange("fullName", value)}
-              required
-            />
+            <Field label="Full Name" error={errors.fullName?.message}>
+              <input
+                {...register("fullName")}
+                className={inputClass(errors.fullName?.message)}
+              />
+            </Field>
 
-            <Input
-              label="Email"
-              type="email"
-              value={form.email}
-              onChange={(value) => handleChange("email", value)}
-              required
-            />
+            <Field label="Email" error={errors.email?.message}>
+              <input
+                type="email"
+                {...register("email")}
+                className={inputClass(errors.email?.message)}
+              />
+            </Field>
 
-            <Input
+            <Field
               label="Specialization"
-              value={form.specialization}
-              onChange={(value) => handleChange("specialization", value)}
-              required
-            />
+              error={errors.specialization?.message}
+            >
+              <input
+                {...register("specialization")}
+                className={inputClass(errors.specialization?.message)}
+              />
+            </Field>
 
-            <Input
+            <Field
               label="License Number"
-              value={form.licenseNumber}
-              onChange={(value) => handleChange("licenseNumber", value)}
-              required
-            />
+              error={errors.licenseNumber?.message}
+            >
+              <input
+                {...register("licenseNumber")}
+                className={inputClass(errors.licenseNumber?.message)}
+              />
+            </Field>
 
-            <Input
+            <Field
               label="License Expiry Date"
-              type="date"
-              value={form.licenseExpiryDate}
-              onChange={(value) => handleChange("licenseExpiryDate", value)}
-              required
-            />
+              error={errors.licenseExpiryDate?.message}
+            >
+              <input
+                type="date"
+                {...register("licenseExpiryDate")}
+                className={inputClass(errors.licenseExpiryDate?.message)}
+              />
+            </Field>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Status
-              </label>
+            <Field label="Status" error={errors.status?.message}>
               <select
-                value={form.status}
-                onChange={(e) =>
-                  handleChange("status", e.target.value as DoctorStatus)
-                }
-                className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                {...register("status")}
+                className={inputClass(errors.status?.message)}
               >
                 <option value="Active">Active</option>
                 <option value="Suspended">Suspended</option>
                 <option value="Expired">Expired</option>
               </select>
-            </div>
+            </Field>
           </div>
 
           <div className="mt-4 flex justify-end gap-3 border-t pt-5">
@@ -172,31 +179,30 @@ export function DoctorFormModal({
   );
 }
 
-function Input({
+function Field({
   label,
-  value,
-  onChange,
-  type = "text",
-  required,
+  error,
+  children,
 }: {
   label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
 }) {
   return (
     <div>
       <label className="mb-1 block text-sm font-medium text-slate-700">
         {label}
       </label>
-      <input
-        type={type}
-        value={value}
-        required={required}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-      />
+      {children}
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );
+}
+
+function inputClass(error?: string) {
+  return `w-full rounded-lg border px-3 py-2.5 text-slate-900 focus:outline-none focus:ring-2 ${
+    error
+      ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+      : "border-slate-300 focus:border-indigo-500 focus:ring-indigo-100"
+  }`;
 }

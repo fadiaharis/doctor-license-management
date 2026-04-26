@@ -25,6 +25,6 @@ export type CreateDoctorPayload = {
   status: DoctorStatus;
 };
 
-export type UpdateDoctorPayload = CreateDoctorPayload & {
+export interface UpdateDoctorPayload extends CreateDoctorPayload {
   id: number;
-};
+}

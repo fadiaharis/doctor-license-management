@@ -18,7 +18,7 @@ function buildQuery(filters: DoctorFilters) {
 }
 
 export const doctorService = {
-    getAll: (filters: DoctorFilters) =>
+  getAll: (filters: DoctorFilters) =>
     http<ApiResponse<Doctor[]>>(`/Doctors${buildQuery(filters)}`),
 
   getById: (id: number) =>
@@ -30,13 +30,13 @@ export const doctorService = {
       body: JSON.stringify(payload),
     }),
 
-  update: (payload: UpdateDoctorPayload) =>
-    http<ApiResponse<Doctor>>(`/Doctors/${payload.id}`, {
+  update: (id: number, payload: UpdateDoctorPayload) =>
+    http<ApiResponse<Doctor>>(`/Doctors/${id}`, {
       method: "PUT",
       body: JSON.stringify(payload),
     }),
 
-  remove: (id: number) =>
+  delete: (id: number) =>
     http<ApiResponse<null>>(`/Doctors/${id}`, {
       method: "DELETE",
     }),

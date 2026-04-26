@@ -4,11 +4,21 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { DoctorFilters } from "@/features/doctors/components/DoctorFilters";
 import { DoctorTable } from "@/features/doctors/components/DoctorTable";
+import { DoctorFormModal } from "@/features/doctors/components/DoctorFormModal";
+
 import { useDoctors } from "@/features/doctors/api/useDoctorQueries";
+import {
+  useCreateDoctor,
+  useDeleteDoctor,
+  useUpdateDoctor,
+} from "@/features/doctors/api/useDoctorMutations";
 import type {
+  CreateDoctorPayload,
   Doctor,
   DoctorFilters as DoctorFiltersType,
+  UpdateDoctorPayload,
 } from "@/features/doctors/types/doctor";
+import { DeleteDoctorDialog } from "@/features/doctors/components/DeleteDoctorDialog";
 
 export default function DoctorsPage() {
   const [filters, setFilters] = useState<DoctorFiltersType>({
@@ -17,9 +27,15 @@ export default function DoctorsPage() {
   });
 
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [deleteDoctor, setDeleteDoctor] = useState<Doctor | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data, isLoading, isError, error } = useDoctors(filters);
+
+  const createDoctor = useCreateDoctor();
+  const updateDoctor = useUpdateDoctor();
+  const removeDoctor = useDeleteDoctor();
+
   const doctors = data?.data ?? [];
 
   function handleAdd() {
@@ -32,9 +48,37 @@ export default function DoctorsPage() {
     setIsFormOpen(true);
   }
 
-  function handleDelete(doctor: Doctor) {
-    alert(`Delete ${doctor.fullName} - we will wire API next`);
+  function handleSubmit(payload: CreateDoctorPayload | UpdateDoctorPayload) {
+    if ("id" in payload) {
+      updateDoctor.mutate(
+        { id: payload.id, payload },
+        {
+          onSuccess: () => {
+            setIsFormOpen(false);
+            setSelectedDoctor(null);
+          },
+        }
+      );
+    } else {
+      createDoctor.mutate(payload, {
+        onSuccess: () => {
+          setIsFormOpen(false);
+        },
+      });
+    }
   }
+
+  function handleConfirmDelete() {
+    if (!deleteDoctor) return;
+
+    removeDoctor.mutate(deleteDoctor.id, {
+      onSuccess: () => {
+        setDeleteDoctor(null);
+      },
+    });
+  }
+
+  const isSubmitting = createDoctor.isPending || updateDoctor.isPending;
 
   return (
     <div className="min-h-screen bg-slate-50 px-8 py-10">
@@ -75,7 +119,7 @@ export default function DoctorsPage() {
             <DoctorTable
               doctors={doctors}
               onEdit={handleEdit}
-              onDelete={handleDelete}
+              onDelete={setDeleteDoctor}
             />
 
             <div className="mt-4 flex items-center justify-between rounded-xl border bg-white px-6 py-4 text-sm text-slate-600">
@@ -96,28 +140,23 @@ export default function DoctorsPage() {
           </>
         )}
 
-        {isFormOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl">
-              <h2 className="text-xl font-semibold text-slate-900">
-                {selectedDoctor ? "Edit Doctor" : "Add Doctor"}
-              </h2>
+        <DoctorFormModal
+          open={isFormOpen}
+          doctor={selectedDoctor}
+          isSubmitting={isSubmitting}
+          onClose={() => {
+            setIsFormOpen(false);
+            setSelectedDoctor(null);
+          }}
+          onSubmit={handleSubmit}
+        />
 
-              <p className="mt-2 text-sm text-slate-500">
-                Form implementation comes next.
-              </p>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setIsFormOpen(false)}
-                  className="rounded-lg border px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeleteDoctorDialog
+          doctor={deleteDoctor}
+          isDeleting={removeDoctor.isPending}
+          onClose={() => setDeleteDoctor(null)}
+          onConfirm={handleConfirmDelete}
+        />
       </div>
     </div>
   );

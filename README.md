@@ -214,3 +214,103 @@ All APIs follow a standard response structure:
 | POST | `/api/Doctors` | Create doctor |
 | PUT | `/api/Doctors/{id}` | Update doctor |
 | DELETE | `/api/Doctors/{id}` | Soft delete doctor |
+
+---
+
+## Frontend Architecture
+
+The frontend uses a **feature-based structure**:
+
+```text
+features/
+  doctors/
+    api/
+    components/
+    types/
+    validations/
+
+common/
+  shared components (Loader, EmptyState, ErrorState)
+
+lib/
+  http client
+
+app/
+  Next.js routing
+```
+---
+
+### Key Frontend Decisions
+
+- TanStack Query
+    - Handles API calls, caching, refetching, and mutations
+- React Hook Form + Zod
+    - Type-safe validation
+    - Clean form handling
+- Reusable UI Components
+    - Loader
+    - Empty State
+    - Error State
+- Centralized HTTP Client
+    - Handles API errors
+    - Extracts backend messages (e.g., duplicate license)
+
+   ---
+
+   ### UX Enhancements
+
+- Toast messages for create/update/delete
+- Inline validation messages
+- Loading spinner
+- Empty state UI
+- Error state with retry
+- Pagination controls 
+
+---
+
+## Setup Instructions
+
+---
+
+### Backend Setup
+
+1. Open solution in Visual Studio
+2. Update connection string in:
+```text
+backend/src/DoctorLicenseManagement.API/appsettings.json
+```
+3. Run database scripts (see /database folder)
+4. Run API project
+5. Open Swagger:
+```text
+ https://localhost:65151/swagger
+```
+---
+
+### Frontend Setup
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Create .env.local:
+
+```text
+NEXT_PUBLIC_API_BASE_URL=https://localhost:65151/api
+```
+
+Open:
+
+```text
+http://localhost:3000/doctors
+```
+---
+
+### Important Business Rules
+
+- Soft delete using IsDeleted
+- Duplicate license numbers prevented
+- Expiry status calculated in SQL
+- Expired licenses override status

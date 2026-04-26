@@ -44,17 +44,40 @@ public class DoctorsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] string? status, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+      [FromQuery] string? search,
+      [FromQuery] string? status,
+      CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDoctorsQuery(search, status), cancellationToken);
-        return Ok(result);
+        var doctors = await _mediator.Send(
+            new GetDoctorsQuery(search, status),
+            cancellationToken
+        );
+
+        var response = new ApiResponse<List<DoctorListItemDto>>(
+            true,
+            "Doctors fetched successfully",
+            doctors
+        );
+
+        return Ok(response);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDoctorByIdQuery(id), cancellationToken);
-        return Ok(result);
+        var doctor = await _mediator.Send(
+            new GetDoctorByIdQuery(id),
+            cancellationToken
+        );
+
+        var response = new ApiResponse<DoctorDto>(
+            true,
+            "Doctor fetched successfully",
+            doctor
+        );
+
+        return Ok(response);
     }
 
     [HttpPut("{id}")]

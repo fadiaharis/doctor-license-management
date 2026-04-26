@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import { DoctorFilters } from "@/features/doctors/components/DoctorFilters";
 import { DoctorTable } from "@/features/doctors/components/DoctorTable";
 import { DoctorFormModal } from "@/features/doctors/components/DoctorFormModal";
@@ -19,6 +19,7 @@ import type {
   UpdateDoctorPayload,
 } from "@/features/doctors/types/doctor";
 import { DeleteDoctorDialog } from "@/features/doctors/components/DeleteDoctorDialog";
+import { ErrorState } from "@/features/common/components/ErrorState";
 
 export default function DoctorsPage() {
   const [filters, setFilters] = useState<DoctorFiltersType>({
@@ -32,7 +33,7 @@ export default function DoctorsPage() {
   const [deleteDoctor, setDeleteDoctor] = useState<Doctor | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const { data, isLoading, isError, error } = useDoctors(filters);
+  const { data, isLoading, isError, refetch } = useDoctors(filters);
 
   const createDoctor = useCreateDoctor();
   const updateDoctor = useUpdateDoctor();
@@ -84,7 +85,7 @@ export default function DoctorsPage() {
   const isSubmitting = createDoctor.isPending || updateDoctor.isPending;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-8 py-10">
+    <div className="min-h-screen bg-slate-50 px-6 py-8 md:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center justify-between">
           <div>
@@ -114,64 +115,69 @@ export default function DoctorsPage() {
         />
 
         {isLoading && (
-          <div className="rounded-xl border bg-white p-8 text-slate-500">
-            Loading doctors...
+          <div className="flex h-[300px] flex-col items-center justify-center gap-3 rounded-xl border bg-white">
+            <Loader />
+            <p className="text-sm text-slate-500">Loading data...</p>
           </div>
         )}
 
         {isError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-red-700">
-            {error instanceof Error ? error.message : "Something went wrong"}
-          </div>
+          <ErrorState
+            title="Oops! Something went wrong"
+            description="Unable to load doctors right now. Please make sure the API is running and try again."
+            onRetry={() => refetch()}
+          />
         )}
 
         {!isLoading && !isError && (
-          <>
+          <div className="mt-6 space-y-4">
             <DoctorTable
               doctors={doctors}
               onEdit={handleEdit}
               onDelete={setDeleteDoctor}
             />
 
-            <div className="mt-4 flex items-center justify-between rounded-xl border bg-white px-6 py-4 text-sm text-slate-600">
-              <span>
-                Showing page {paginated?.pageNumber} of {paginated?.totalPages} •{" "}
-                {paginated?.totalCount} results
-              </span>
-
-              <div className="flex items-center gap-2">
-                <button
-                  disabled={filters.pageNumber === 1}
-                  onClick={() =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      pageNumber: prev.pageNumber - 1,
-                    }))
-                  }
-                  className="rounded-md border px-3 py-1.5 disabled:opacity-50"
-                >
-                  Prev
-                </button>
-
-                <span className="rounded-md bg-indigo-600 px-3 py-1.5 text-white">
-                  {filters.pageNumber}
+            {paginated && paginated.totalCount > 0 && (
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-white px-6 py-4 text-sm text-slate-600 shadow-sm">
+                <span>
+                  Showing page {paginated.pageNumber} of {paginated.totalPages} •{" "}
+                  {paginated.totalCount} results
                 </span>
 
-                <button
-                  disabled={filters.pageNumber === paginated?.totalPages}
-                  onClick={() =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      pageNumber: prev.pageNumber + 1,
-                    }))
-                  }
-                  className="rounded-md border px-3 py-1.5 disabled:opacity-50"
-                >
-                  Next
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled={filters.pageNumber <= 1}
+                    onClick={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        pageNumber: Math.max(prev.pageNumber - 1, 1),
+                      }))
+                    }
+                    className="rounded-md border px-3 py-1.5 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Prev
+                  </button>
+
+                  <span className="rounded-md bg-indigo-600 px-3 py-1.5 text-white">
+                    {paginated.pageNumber}
+                  </span>
+
+                  <button
+                    disabled={filters.pageNumber >= paginated.totalPages}
+                    onClick={() =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        pageNumber: prev.pageNumber + 1,
+                      }))
+                    }
+                    className="rounded-md border px-3 py-1.5 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-            </div>
-          </>
+            )}
+          </div>
         )}
 
         <DoctorFormModal

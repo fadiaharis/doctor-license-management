@@ -1,6 +1,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 import type { Doctor } from "../types/doctor";
 import { StatusBadge } from "./StatusBadge";
+import { EmptyState } from "@/features/common/components/EmptyState";
 
 type Props = {
   doctors: Doctor[];
@@ -11,9 +12,10 @@ type Props = {
 export function DoctorTable({ doctors, onEdit, onDelete }: Props) {
   if (doctors.length === 0) {
     return (
-      <div className="rounded-xl border bg-white p-10 text-center text-slate-500">
-        No doctors found
-      </div>
+      <EmptyState
+        title="No doctors found"
+        description="Try adjusting your search or filters."
+      />
     );
   }
 

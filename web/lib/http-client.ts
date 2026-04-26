@@ -13,7 +13,14 @@ export async function http<T>(
   });
 
   if (!response.ok) {
-    throw new Error("API request failed");
+    let message = "Something went wrong";
+
+    try {
+      const errorData = await response.json();
+      message = errorData?.message || message;
+    } catch {}
+
+    throw new Error(message);
   }
 
   return response.json();

@@ -15,7 +15,7 @@ export function DoctorFilters({ filters, onChange }: Props) {
           value={filters.search}
           onChange={(e) => onChange({ ...filters, search: e.target.value })}
           placeholder="Search by name or license number"
-          className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+          className="w-full rounded-lg bg-white shadow-sm py-2 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
         />
       </div>
 
@@ -24,7 +24,7 @@ export function DoctorFilters({ filters, onChange }: Props) {
         onChange={(e) =>
           onChange({ ...filters, status: e.target.value as DoctorFiltersType["status"] })
         }
-        className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-48"
+        className="w-full rounded-lg bg-white shadow-sm px-4 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 sm:w-48"
       >
         <option value="">All statuses</option>
         <option value="Active">Active</option>

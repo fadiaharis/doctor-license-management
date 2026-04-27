@@ -318,16 +318,16 @@ http://localhost:3000/doctors
 ## Screenshots
 
 ### Doctors List
-![Doctors List](docs/images/doctors-list.png)
+![Doctors List](doc/images/doctors-list.png)
 
 ### Add Doctor
-![Add Doctor](docs/images/add-doctor.png)
+![Add Doctor](doc/images/add-doctor.png)
 
 ### Filter & Search
-![Filter](docs/images/filter.png)
+![Filter](doc/images/filter.png)
 
 ### Loading State
-![Loader](docs/images/loading-state.png)
+![Loader](doc/images/loading-state.png)
 
 ### Empty State
-![Empty State](docs/images/empty-state.png)
+![Empty State](doc/images/empty-state.png)

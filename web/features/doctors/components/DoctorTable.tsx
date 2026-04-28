@@ -10,7 +10,6 @@ type Props = {
 };
 
 export function DoctorTable({ doctors, onEdit, onDelete }: Props) {
-  doctors.length = 0;
   if (doctors.length === 0) {
     return (
       <EmptyState

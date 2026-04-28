@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery} from "@tanstack/react-query";
 import { doctorKeys } from "./doctorKeys";
 import { doctorService } from "./doctorService";
-import { CreateDoctorPayload, DoctorFilters, UpdateDoctorPayload } from "../types/doctor";
+import { DoctorFilters } from "../types/doctor";
 
 export function useDoctors(filters: DoctorFilters) {
     return useQuery({
